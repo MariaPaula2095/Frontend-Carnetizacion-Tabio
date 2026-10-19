@@ -1,17 +1,22 @@
 package org.example.carnetizaciontabio.data
 
 import org.example.carnetizaciontabio.data.remote.api.CarnetDigitalApi
+import org.example.carnetizaciontabio.data.remote.api.ConsentimientoApi
 import org.example.carnetizaciontabio.data.remote.api.MarcacionApi
 import org.example.carnetizaciontabio.data.remote.api.TrabajadorApi
 import org.example.carnetizaciontabio.data.repository.CarnetRepositoryImpl
+import org.example.carnetizaciontabio.data.repository.ConsentimientoRepositoryImpl
 import org.example.carnetizaciontabio.data.repository.MarcacionRepositoryImpl
 import org.example.carnetizaciontabio.domain.repository.CarnetRepository
+import org.example.carnetizaciontabio.domain.repository.ConsentimientoRepository
 import org.example.carnetizaciontabio.domain.repository.MarcacionRepository
 import org.example.carnetizaciontabio.domain.repository.TrabajadorRepository
 import org.example.carnetizaciontabio.domain.repository.TrabajadorRepositoryImpl
+import org.example.carnetizaciontabio.domain.usecase.AceptarConsentimiento
 import org.example.carnetizaciontabio.domain.usecase.LoginTrabajador
 import org.example.carnetizaciontabio.domain.usecase.ObtenerHistorial
 import org.example.carnetizaciontabio.domain.usecase.ObtenerMiCarnet
+import org.example.carnetizaciontabio.domain.usecase.ObtenerMiConsentimiento
 import org.example.carnetizaciontabio.domain.usecase.RegistrarMarcacion
 import org.koin.dsl.module
 
@@ -34,4 +39,9 @@ val dataModule = module {
     single<MarcacionRepository> { MarcacionRepositoryImpl(get()) }
     factory { RegistrarMarcacion(get()) }
     factory { ObtenerHistorial(get()) }
+
+    single { ConsentimientoApi(get()) }
+    single<ConsentimientoRepository> { ConsentimientoRepositoryImpl(get()) }
+    factory { AceptarConsentimiento(get()) }
+    factory { ObtenerMiConsentimiento(get()) }
 }
