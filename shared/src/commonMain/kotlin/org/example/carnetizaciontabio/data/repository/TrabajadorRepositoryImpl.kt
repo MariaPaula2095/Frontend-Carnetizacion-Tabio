@@ -2,10 +2,13 @@ package org.example.carnetizaciontabio.domain.repository
 
 import org.example.carnetizaciontabio.core.ApiResult
 import org.example.carnetizaciontabio.core.TokenStorage
+import org.example.carnetizaciontabio.core.map
 import org.example.carnetizaciontabio.core.safeApiCall
 import org.example.carnetizaciontabio.data.mapper.toDomain
+import org.example.carnetizaciontabio.data.mapper.toDto
 import org.example.carnetizaciontabio.data.remote.api.TrabajadorApi
 import org.example.carnetizaciontabio.data.remote.dto.LoginRequestDto
+import org.example.carnetizaciontabio.domain.model.NuevoTrabajador
 import org.example.carnetizaciontabio.domain.model.Trabajador
 
 /*
@@ -34,4 +37,7 @@ class TrabajadorRepositoryImpl (
             }
         }
     }
+
+    override suspend fun registrar(nuevo: NuevoTrabajador): ApiResult<Trabajador> =
+        safeApiCall { api.registrar(nuevo.toDto()) }.map { it.toDomain() }
 }

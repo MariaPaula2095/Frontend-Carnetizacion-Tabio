@@ -2,6 +2,7 @@ package org.example.carnetizaciontabio.data.mapper
 
 import org.example.carnetizaciontabio.data.remote.dto.TrabajadorDto
 import org.example.carnetizaciontabio.domain.model.EstadoTrabajador
+import org.example.carnetizaciontabio.domain.model.NuevoTrabajador
 import org.example.carnetizaciontabio.domain.model.Trabajador
 
 /*
@@ -19,4 +20,16 @@ fun TrabajadorDto.toDomain(): Trabajador = Trabajador(
     tipoVinculacion = tipoVinculacion,
     estado = estado ?: EstadoTrabajador.PENDIENTE,
     fechaIngreso = fechaIngreso
+)
+
+//Convierte los datos del formulario en el DTO que se envía al backend (dirección inversa a toDomain).
+fun NuevoTrabajador.toDto(): TrabajadorDto = TrabajadorDto(
+    cedula = cedula,
+    nombres = nombres,
+    apellidos = apellidos,
+    fotoUrl = fotoUrl,
+    cargo = cargo,
+    areaId = areaId,
+    tipoVinculacion = tipoVinculacion,
+    pin = pin
 )

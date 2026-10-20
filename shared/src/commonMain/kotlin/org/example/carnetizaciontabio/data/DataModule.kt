@@ -18,6 +18,7 @@ import org.example.carnetizaciontabio.domain.usecase.ObtenerHistorial
 import org.example.carnetizaciontabio.domain.usecase.ObtenerMiCarnet
 import org.example.carnetizaciontabio.domain.usecase.ObtenerMiConsentimiento
 import org.example.carnetizaciontabio.domain.usecase.RegistrarMarcacion
+import org.example.carnetizaciontabio.domain.usecase.RegistrarTrabajador
 import org.koin.dsl.module
 
 /* Le dice a Koin cómo construir los repositorios y casos de uso
@@ -30,6 +31,7 @@ val dataModule = module {
     single { TrabajadorApi( get()) }
     single<TrabajadorRepository> { TrabajadorRepositoryImpl(get(), get()) }
     factory { LoginTrabajador( get()) }
+    factory { RegistrarTrabajador(get()) }
 
     single { CarnetDigitalApi(get()) }
     single<CarnetRepository> { CarnetRepositoryImpl(get()) }
