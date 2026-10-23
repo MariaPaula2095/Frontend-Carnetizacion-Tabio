@@ -9,17 +9,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import org.example.carnetizaciontabio.presentation.theme.CarnetizacionTheme
 
 // Punto de entrada de la UI compartida. Mas adelante aqui vivirán el tema y la navegacion.
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    CarnetizacionTheme {
         Box(
             modifier = Modifier.fillMaxSize().safeContentPadding(),
             contentAlignment = Alignment.Center
         ) {
-            Text("EMSERTABIO · Carnetizacion")
+            Text("EMSERTABIO · Carnetizacion",
+            color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
