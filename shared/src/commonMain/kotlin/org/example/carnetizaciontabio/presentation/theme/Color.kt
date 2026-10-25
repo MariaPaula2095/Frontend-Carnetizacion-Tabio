@@ -30,6 +30,9 @@ val FondoLogin = Brush.verticalGradient(
     1f to BordeAcento              // final (100%)
 )
 
+//Pantalla Home
+val AmarilloCarnet = Color(0xFFFFC014)
+
 // Estados del trabajador
 val EstadoAutorizado = VerdeAccion
 val EstadoPendiente = Color(0xFFF5A623)
