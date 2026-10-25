@@ -1,28 +1,17 @@
 package org.example.carnetizaciontabio
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import org.example.carnetizaciontabio.presentation.login.LoginScreen
 import org.example.carnetizaciontabio.presentation.theme.CarnetizacionTheme
 
+
 // Punto de entrada de la UI compartida. Mas adelante aqui vivirán el tema y la navegacion.
+
 @Composable
 @Preview
 fun App() {
     CarnetizacionTheme {
-        Box(
-            modifier = Modifier.fillMaxSize().safeContentPadding(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("EMSERTABIO · Carnetizacion",
-            color = MaterialTheme.colorScheme.primary
-            )
-        }
+        LoginScreen()
     }
 }

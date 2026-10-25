@@ -1,5 +1,6 @@
 package org.example.carnetizaciontabio.presentation.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 // Paleta de EMSERTABIO, tomada de la pagina oficial. En Color() el 0xFF inicial es la opacidad (100%).
@@ -19,7 +20,17 @@ val TextoSecundario = Color(0xFF6C757D) // subtitulos y titulo del login
 val BordeGris = Color(0xFFE2E2E2)       // bordes de campos y tarjetas
 val BordeAcento = Color(0xFF00CBF7)     // linea celeste bajo el menu
 
-// Estados del trabajador (no estaban en la lista de la pagina: salen de los mockups de Figma)
+// Degradado de fondo del Login, tomado de Figma (de arriba hacia abajo).
+val AzulNoche = Color(0xFF040042)  // inicio del degradado (0%)
+val AzulMedio = Color(0xFF0089BD)  // punto intermedio (63%)
+
+val FondoLogin = Brush.verticalGradient(
+    0f to AzulNoche,
+    0.63f to AzulMedio,
+    1f to BordeAcento              // final (100%)
+)
+
+// Estados del trabajador
 val EstadoAutorizado = VerdeAccion
 val EstadoPendiente = Color(0xFFF5A623)
 val EstadoInactivo = Color(0xFF9AA0A6)
