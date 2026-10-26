@@ -20,13 +20,20 @@ fun BotonAccion(
     color: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    alto: Dp = 52.dp
+    alto: Dp = 52.dp,
+    enabled: Boolean = true      // nuevo
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.fillMaxWidth().height(alto),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Color.White)
+        colors = ButtonDefaults.buttonColors(
+            containerColor = color,
+            contentColor = Color.White,
+            disabledContainerColor = color.copy(alpha = 0.4f),  // se ve apagado cuando no se puede pulsar
+            disabledContentColor = Color.White
+        )
     ) {
         Text(texto, style = MaterialTheme.typography.titleMedium)
     }
