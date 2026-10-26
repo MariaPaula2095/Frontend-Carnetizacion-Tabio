@@ -21,8 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.example.carnetizaciontabio.presentation.theme.CelesteAccion
 import org.example.carnetizaciontabio.presentation.theme.ImageUrls
 
 /*
@@ -30,7 +32,10 @@ import org.example.carnetizaciontabio.presentation.theme.ImageUrls
   si no, no lo muestra (asi la reutilizan las pantallas que llevan flecha de regreso).
  */
 @Composable
-fun BarraSuperior(onCerrarSesion: (() -> Unit)? = null) {
+fun BarraSuperior(
+    onCerrarSesion: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,6 +45,25 @@ fun BarraSuperior(onCerrarSesion: (() -> Unit)? = null) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
+        if (onBack != null) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(CelesteAccion)
+                    .clickable(onClick = onBack),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = ImageUrls.ARROW,
+                    contentDescription = "Volver",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+
         AsyncImage(
             model = ImageUrls.ESCUDO_TABIO,
             contentDescription = "Escudo de Tabio",
