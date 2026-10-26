@@ -32,6 +32,13 @@ val FondoLogin = Brush.verticalGradient(
 
 //Pantalla Home
 val AmarilloCarnet = Color(0xFFFFC014)
+// Carnet digital (valores de Figma)
+val DoradoCarnet = Color(0xFFDAA40F)
+val AzulCarnet = Color(0x7D0089BD)  // azul medio al 49% de opacidad: sobre el fondo blanco se ve celeste claro
+// Colores de las franjas del pie (los tres cuadros del carnet fisico)
+val AzulFranja = Color(0xFF4FB3D9)
+val GrisFranja = Color(0xFFBDBDBD)
+val VerdeFranja = Color(0xFF1B7A3E)
 
 // Estados del trabajador
 val EstadoAutorizado = VerdeAccion
