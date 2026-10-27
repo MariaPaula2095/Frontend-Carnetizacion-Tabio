@@ -1,4 +1,4 @@
-package org.example.carnetizaciontabio.domain.repository
+package org.example.carnetizaciontabio.data.repository
 
 import org.example.carnetizaciontabio.core.ApiResult
 import org.example.carnetizaciontabio.core.TokenStorage
@@ -10,6 +10,7 @@ import org.example.carnetizaciontabio.data.remote.api.TrabajadorApi
 import org.example.carnetizaciontabio.data.remote.dto.LoginRequestDto
 import org.example.carnetizaciontabio.domain.model.NuevoTrabajador
 import org.example.carnetizaciontabio.domain.model.Trabajador
+import org.example.carnetizaciontabio.domain.repository.TrabajadorRepository
 
 /*
  Implementación real del repositorio: llama al backend con TrabajadorApi,
