@@ -1,0 +1,47 @@
+package org.example.carnetizaciontabio.presentation.theme
+
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+
+// Paleta de EMSERTABIO, tomada de la pagina oficial. En Color() el 0xFF inicial es la opacidad (100%).
+
+// Colores de marca
+val AzulHeader = Color(0xFF0943B5)    // barra superior y encabezados
+val AzulAccion = Color(0xFF004884)    // selector, encabezado de tabla, item activo del menu
+val CelesteAccion = Color(0xFF00A4E0) // botones y tarjetas secundarias
+val VerdeAccion = Color(0xFF28A745)   // botones de accion principal (Ingresar, Generar, Aceptar)
+val AzulLink = Color(0xFF30A2FF)      // titulos de seccion y enlaces
+
+// Neutros
+val Blanco = Color(0xFFFFFFFF)        // fondo general
+val GrisNavbar = Color(0xFFF6F8F9)    // fondo del menu de navegacion y paneles claros
+val TextoPrincipal = Color(0xFF4C4C4C)
+val TextoSecundario = Color(0xFF6C757D) // subtitulos y titulo del login
+val BordeGris = Color(0xFFE2E2E2)       // bordes de campos y tarjetas
+val BordeAcento = Color(0xFF00CBF7)     // linea celeste bajo el menu
+
+// Degradado de fondo del Login, tomado de Figma (de arriba hacia abajo).
+val AzulNoche = Color(0xFF040042)  // inicio del degradado (0%)
+val AzulMedio = Color(0xFF0089BD)  // punto intermedio (63%)
+
+val FondoLogin = Brush.verticalGradient(
+    0f to AzulNoche,
+    0.63f to AzulMedio,
+    1f to BordeAcento              // final (100%)
+)
+
+//Pantalla Home
+val AmarilloCarnet = Color(0xFFFFC014)
+// Carnet digital (valores de Figma)
+val DoradoCarnet = Color(0xFFDAA40F)
+val AzulCarnet = Color(0x7D0089BD)  // azul medio al 49% de opacidad: sobre el fondo blanco se ve celeste claro
+// Colores de las franjas del pie (los tres cuadros del carnet fisico)
+val AzulFranja = Color(0xFF4FB3D9)
+val GrisFranja = Color(0xFFBDBDBD)
+val VerdeFranja = Color(0xFF1B7A3E)
+
+// Estados del trabajador
+val EstadoAutorizado = VerdeAccion
+val EstadoPendiente = Color(0xFFF5A623)
+val EstadoInactivo = Color(0xFF9AA0A6)
+val EstadoRechazado = Color(0xFFD93025)
