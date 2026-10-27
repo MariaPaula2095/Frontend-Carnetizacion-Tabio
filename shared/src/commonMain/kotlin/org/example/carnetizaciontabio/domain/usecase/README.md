@@ -10,6 +10,9 @@ Una clase por cada accion concreta que puede hacer el usuario en la app. Cada un
 - `ObtenerHistorialUseCase`
 - `AceptarConsentimientoUseCase`
 - `ObtenerMiConsentimiento`
+- `ObtenerAreas` (las areas para el formulario de registro; no requiere sesion)
+- `ObtenerTrabajadorActual` (el trabajador que inicio sesion, para el carnet; es null si no hay sesion)
+- `CerrarSesion` (borra el token y los datos del trabajador en memoria)
 
 ## Por que se llaman asi
 El nombre es un verbo + lo que hace, y termina en `UseCase` (caso de uso). Al leer la lista de archivos se entiende todo lo que la app es capaz de hacer.

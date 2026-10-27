@@ -3,7 +3,7 @@
 Las entidades como las usa la app internamente, y los valores fijos (enums).
 
 ## Archivos esperados
-- Entidades: `Trabajador`, `CarnetDigital`, `Marcacion`, `Consentimiento`.
+- Entidades: `Trabajador`, `Area`, `CarnetDigital`, `Marcacion`, `Consentimiento`.
 - `NuevoTrabajador`: los datos que llena el trabajador para registrarse. Lleva el `pin`, que se envia al backend pero nunca vuelve; por eso no existe en `Trabajador`.
 - Enums: `EstadoTrabajador` (PENDIENTE, AUTORIZADO, INACTIVO, RECHAZADO), `TipoMarcacion` (ENTRADA, SALIDA_ALMUERZO, ENTRADA_ALMUERZO, SALIDA), `EstadoCarnet` (ACTIVO, INACTIVO, VENCIDO), `MetodoVerificacion` (CARNET_QR), `TipoVinculacion`.
 
