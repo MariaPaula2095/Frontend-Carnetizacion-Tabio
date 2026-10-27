@@ -1,6 +1,9 @@
 package org.example.carnetizaciontabio.core
 
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.statement.bodyAsText
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.coroutines.cancellation.CancellationException
 
 // Toda llamada al backend termina en uno de estos dos resultados:
@@ -21,7 +24,9 @@ suspend fun <T> safeApiCall(block: suspend () -> T): ApiResult<T> {
         throw e
     } catch (e: ResponseException) {
         val code = e.response.status.value
-        val message = when (code) {
+        // Si el backend mando su propio mensaje (ej. "Cedula o PIN incorrectos"), se usa ese.
+        // Si no mando ninguno, se usa un texto generico segun el codigo.
+        val message = leerMensajeDelServidor(e) ?: when (code) {
             401, 403 -> "No tienes permiso o tu sesion vencio. Inicia sesion de nuevo."
             404 -> "No se encontro lo que buscas."
             in 500..599 -> "El servidor tuvo un problema. Intenta de nuevo."
@@ -32,3 +37,24 @@ suspend fun <T> safeApiCall(block: suspend () -> T): ApiResult<T> {
         ApiResult.Error("No hay conexion con el servidor. Revisa tu internet.")
     }
 }
+
+// Forma de los errores que manda el backend, ej.: { "status": 401, "message": "Cedula o PIN incorrectos", ... }
+// Solo interesa el campo "message".
+@Serializable
+private data class ErrorDelServidor(val message: String? = null)
+
+private val jsonDeErrores = Json { ignoreUnknownKeys = true }
+
+// Intenta leer el mensaje que el backend dejo en el cuerpo de la respuesta de error.
+// Devuelve null si el cuerpo esta vacio o no tiene ese formato (por ejemplo, una sesion vencida).
+private suspend fun leerMensajeDelServidor(e: ResponseException): String? =
+    try {
+        jsonDeErrores
+            .decodeFromString<ErrorDelServidor>(e.response.bodyAsText())
+            .message
+            ?.takeIf { it.isNotBlank() }
+    } catch (ex: CancellationException) {
+        throw ex
+    } catch (ex: Exception) {
+        null
+    }
