@@ -50,6 +50,7 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
+            implementation(libs.navigation3.ui)
             implementation(libs.qrose.qr)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
