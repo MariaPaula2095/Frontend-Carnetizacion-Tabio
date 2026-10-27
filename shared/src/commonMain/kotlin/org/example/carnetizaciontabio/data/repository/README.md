@@ -10,4 +10,5 @@ Aqui se usan los clientes de `data/remote/api` y se convierten los DTO en objeto
 El sufijo `Impl` (implementacion) es el mismo que usa el backend en sus servicios (`TrabajadorServiceImpl`): identifica la clase que cumple el contrato de una interfaz.
 
 ## Ojo
-En el backend un `repository` habla con la base de datos. Aqui habla con la API del backend. El nombre es igual, pero la fuente de datos es distinta.
+- En el backend un `repository` habla con la base de datos. Aqui habla con la API del backend. El nombre es igual, pero la fuente de datos es distinta.
+- `TrabajadorRepositoryImpl.login` ademas guarda el token en `TokenStorage`: es un detalle de datos, por eso no lo hace la pantalla.

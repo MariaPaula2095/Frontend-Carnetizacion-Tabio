@@ -9,6 +9,7 @@ Una clase por cada accion concreta que puede hacer el usuario en la app. Cada un
 - `RegistrarMarcacionUseCase` (recibe el codigo QR escaneado)
 - `ObtenerHistorialUseCase`
 - `AceptarConsentimientoUseCase`
+- `ObtenerMiConsentimiento`
 
 ## Por que se llaman asi
 El nombre es un verbo + lo que hace, y termina en `UseCase` (caso de uso). Al leer la lista de archivos se entiende todo lo que la app es capaz de hacer.
