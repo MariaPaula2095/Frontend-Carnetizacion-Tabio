@@ -12,10 +12,16 @@ class RegistrarTrabajador(private val repository: TrabajadorRepository) {
         if (obligatorios.any { it.isBlank() }) {
             return ApiResult.Error("Completa todos los campos obligatorios.")
         }
+        // El backend usa los ultimos 4 digitos de la cedula como id del trabajador,
+        // por eso debe tener solo numeros y minimo 4 digitos.
+        val cedula = nuevo.cedula.trim()
+        if (cedula.length < 4 || cedula.any { !it.isDigit() }) {
+            return ApiResult.Error("La cédula debe tener solo números y mínimo 4 dígitos.")
+        }
         // Se limpian espacios de los textos de identidad; el PIN se deja intacto (es texto libre).
         return repository.registrar(
             nuevo.copy(
-                cedula = nuevo.cedula.trim(),
+                cedula = cedula,
                 nombres = nuevo.nombres.trim(),
                 apellidos = nuevo.apellidos.trim(),
                 cargo = nuevo.cargo.trim()

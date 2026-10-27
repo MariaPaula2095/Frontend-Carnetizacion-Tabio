@@ -3,7 +3,7 @@
 Interfaces (contratos) que dicen QUE operaciones existen para obtener y guardar datos, sin decir COMO se hacen.
 
 ## Archivos esperados
-`TrabajadorRepository`, `CarnetDigitalRepository`, `MarcacionRepository`, `ConsentimientoRepository`.
+`TrabajadorRepository`, `CarnetRepository`, `MarcacionRepository`, `ConsentimientoRepository`.
 
 Ejemplo: `TrabajadorRepository` declara `login(cedula, pin)` pero no sabe si eso se hace con internet, con una base local o con datos de prueba.
 

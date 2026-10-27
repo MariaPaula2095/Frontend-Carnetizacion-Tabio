@@ -7,11 +7,11 @@ import org.example.carnetizaciontabio.data.remote.api.TrabajadorApi
 import org.example.carnetizaciontabio.data.repository.CarnetRepositoryImpl
 import org.example.carnetizaciontabio.data.repository.ConsentimientoRepositoryImpl
 import org.example.carnetizaciontabio.data.repository.MarcacionRepositoryImpl
+import org.example.carnetizaciontabio.data.repository.TrabajadorRepositoryImpl
 import org.example.carnetizaciontabio.domain.repository.CarnetRepository
 import org.example.carnetizaciontabio.domain.repository.ConsentimientoRepository
 import org.example.carnetizaciontabio.domain.repository.MarcacionRepository
 import org.example.carnetizaciontabio.domain.repository.TrabajadorRepository
-import org.example.carnetizaciontabio.domain.repository.TrabajadorRepositoryImpl
 import org.example.carnetizaciontabio.domain.usecase.AceptarConsentimiento
 import org.example.carnetizaciontabio.domain.usecase.LoginTrabajador
 import org.example.carnetizaciontabio.domain.usecase.ObtenerHistorial

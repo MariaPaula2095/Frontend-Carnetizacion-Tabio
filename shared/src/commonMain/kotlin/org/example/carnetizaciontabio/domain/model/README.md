@@ -4,7 +4,8 @@ Las entidades como las usa la app internamente, y los valores fijos (enums).
 
 ## Archivos esperados
 - Entidades: `Trabajador`, `CarnetDigital`, `Marcacion`, `Consentimiento`.
-- Enums: `EstadoTrabajador` (PENDIENTE, AUTORIZADO, INACTIVO, RECHAZADO), `TipoMarcacion` (ENTRADA, SALIDA_ALMUERZO, ENTRADA_ALMUERZO, SALIDA), `EstadoCarnet`, `TipoVinculacion`.
+- `NuevoTrabajador`: los datos que llena el trabajador para registrarse. Lleva el `pin`, que se envia al backend pero nunca vuelve; por eso no existe en `Trabajador`.
+- Enums: `EstadoTrabajador` (PENDIENTE, AUTORIZADO, INACTIVO, RECHAZADO), `TipoMarcacion` (ENTRADA, SALIDA_ALMUERZO, ENTRADA_ALMUERZO, SALIDA), `EstadoCarnet` (ACTIVO, INACTIVO, VENCIDO), `MetodoVerificacion` (CARNET_QR), `TipoVinculacion`.
 
 ## Diferencia con los DTO
 El DTO es como viajan los datos por la red; el model es como los usa la app. Pueden parecerse, pero estan separados para que un cambio en la API no obligue a reescribir toda la app.
