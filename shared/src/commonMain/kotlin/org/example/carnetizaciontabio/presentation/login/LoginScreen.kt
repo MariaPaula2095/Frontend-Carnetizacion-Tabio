@@ -40,7 +40,7 @@ import org.example.carnetizaciontabio.presentation.theme.FondoLogin
 import org.example.carnetizaciontabio.presentation.theme.ImageUrls
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(onIngresar: () -> Unit = {}) {
     var cedula by remember { mutableStateOf("") }
     var pin by remember { mutableStateOf("") }
 
@@ -49,7 +49,7 @@ fun LoginScreen() {
         pin = pin,
         onCedulaChange = { cedula = it },
         onPinChange = { pin = it },
-        onIngresar = { /* pendiente: llamar al ViewModel */ }
+        onIngresar = onIngresar
     )
 }
 
