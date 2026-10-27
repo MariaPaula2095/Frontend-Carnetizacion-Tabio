@@ -29,13 +29,10 @@ class TrabajadorRepositoryImpl (
                 tokenStorage.saveToken(result.data.token)
                 ApiResult.Success(result.data.trabajador.toDomain())
             }
-            is ApiResult.Error -> {
-                if (result.code == 401 || result.code == 403){
-                    ApiResult.Error("Datos incorrectos.", result.code)
-                }else {
-                    result
-                }
-            }
+            // El mensaje ya viene listo desde safeApiCall: el del backend si lo mando
+            // (ej. "Cedula o PIN incorrectos", "Tu registro aun no ha sido autorizado..."),
+            // o uno generico si no.
+            is ApiResult.Error -> result
         }
     }
 
