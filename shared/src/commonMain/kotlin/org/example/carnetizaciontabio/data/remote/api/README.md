@@ -4,6 +4,7 @@ Un archivo por cada controller del backend que usa la app del Trabajador. Cada a
 
 ## Archivos esperados
 - `TrabajadorApi`: registrar y login (`/api/trabajadores/registrar`, `/api/trabajadores/login`).
+- `AreaApi`: la lista de areas, publica (`/api/areas/listar`).
 - `CarnetDigitalApi`: consultar el propio carnet (`/api/carnets/mi-carnet`).
 - `MarcacionApi`: marcar por escaneo y ver historial (`/api/marcaciones/escanear`, `/api/marcaciones/mi-historial`).
 - `ConsentimientoApi`: aceptar y consultar consentimiento (`/api/consentimientos/aceptar`, `/api/consentimientos/mi-consentimiento`).

@@ -3,7 +3,7 @@
 Clases que describen la forma exacta de los datos que viajan por la API (marcadas como `@Serializable` para convertirse automaticamente a/desde JSON).
 
 ## Archivos esperados
-`TrabajadorDto`, `CarnetDigitalDto`, `MarcacionDto`, `ConsentimientoDto`.
+`TrabajadorDto`, `AreaDto`, `CarnetDigitalDto`, `MarcacionDto`, `ConsentimientoDto`.
 
 ## Regla importante
 Deben tener el MISMO nombre y los MISMOS campos que los DTO del backend. Asi el JSON se convierte solo, sin escribir conversiones a mano. Si un DTO cambia en el backend, hay que cambiarlo aqui tambien.

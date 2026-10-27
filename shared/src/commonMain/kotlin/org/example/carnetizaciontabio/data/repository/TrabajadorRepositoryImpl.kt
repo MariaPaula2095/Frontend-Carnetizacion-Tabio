@@ -19,7 +19,12 @@ import org.example.carnetizaciontabio.domain.repository.TrabajadorRepository
 class TrabajadorRepositoryImpl (
     private val api: TrabajadorApi,
     private val tokenStorage: TokenStorage
-) : TrabajadorRepository{
+) : TrabajadorRepository {
+
+    // Trabajador que inició sesión. Vive solo en memoria: se pierde al cerrar la app,
+    // igual que el token (ver InMemoryTokenStorage).
+    private var trabajadorActual: Trabajador? = null
+
     override suspend fun login(cedula: String, pin: String): ApiResult<Trabajador>{
 
         val result = safeApiCall { api.login(LoginRequestDto(cedula, pin))}
@@ -27,7 +32,9 @@ class TrabajadorRepositoryImpl (
         return when (result){
             is ApiResult.Success -> {
                 tokenStorage.saveToken(result.data.token)
-                ApiResult.Success(result.data.trabajador.toDomain())
+                val trabajador = result.data.trabajador.toDomain()
+                trabajadorActual = trabajador
+                ApiResult.Success(trabajador)
             }
             // El mensaje ya viene listo desde safeApiCall: el del backend si lo mando
             // (ej. "Cedula o PIN incorrectos", "Tu registro aun no ha sido autorizado..."),
@@ -38,4 +45,11 @@ class TrabajadorRepositoryImpl (
 
     override suspend fun registrar(nuevo: NuevoTrabajador): ApiResult<Trabajador> =
         safeApiCall { api.registrar(nuevo.toDto()) }.map { it.toDomain() }
+
+    override fun obtenerTrabajadorActual(): Trabajador? = trabajadorActual
+
+    override fun cerrarSesion() {
+        tokenStorage.clearToken()
+        trabajadorActual = null
+    }
 }

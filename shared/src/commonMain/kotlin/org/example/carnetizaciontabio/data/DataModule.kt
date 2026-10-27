@@ -1,22 +1,28 @@
 package org.example.carnetizaciontabio.data
 
+import org.example.carnetizaciontabio.data.remote.api.AreaApi
 import org.example.carnetizaciontabio.data.remote.api.CarnetDigitalApi
 import org.example.carnetizaciontabio.data.remote.api.ConsentimientoApi
 import org.example.carnetizaciontabio.data.remote.api.MarcacionApi
 import org.example.carnetizaciontabio.data.remote.api.TrabajadorApi
+import org.example.carnetizaciontabio.data.repository.AreaRepositoryImpl
 import org.example.carnetizaciontabio.data.repository.CarnetRepositoryImpl
 import org.example.carnetizaciontabio.data.repository.ConsentimientoRepositoryImpl
 import org.example.carnetizaciontabio.data.repository.MarcacionRepositoryImpl
 import org.example.carnetizaciontabio.data.repository.TrabajadorRepositoryImpl
+import org.example.carnetizaciontabio.domain.repository.AreaRepository
 import org.example.carnetizaciontabio.domain.repository.CarnetRepository
 import org.example.carnetizaciontabio.domain.repository.ConsentimientoRepository
 import org.example.carnetizaciontabio.domain.repository.MarcacionRepository
 import org.example.carnetizaciontabio.domain.repository.TrabajadorRepository
 import org.example.carnetizaciontabio.domain.usecase.AceptarConsentimiento
+import org.example.carnetizaciontabio.domain.usecase.CerrarSesion
 import org.example.carnetizaciontabio.domain.usecase.LoginTrabajador
+import org.example.carnetizaciontabio.domain.usecase.ObtenerAreas
 import org.example.carnetizaciontabio.domain.usecase.ObtenerHistorial
 import org.example.carnetizaciontabio.domain.usecase.ObtenerMiCarnet
 import org.example.carnetizaciontabio.domain.usecase.ObtenerMiConsentimiento
+import org.example.carnetizaciontabio.domain.usecase.ObtenerTrabajadorActual
 import org.example.carnetizaciontabio.domain.usecase.RegistrarMarcacion
 import org.example.carnetizaciontabio.domain.usecase.RegistrarTrabajador
 import org.koin.dsl.module
@@ -28,10 +34,17 @@ val dataModule = module {
     // single = una sola instancia para toda la app.
     // Se declara como TrabajadorRepository (la interfaz) para que el resto
     // del código dependa del contrato y no de la implementación.
+    // Al ser single, la sesión (el trabajador que inició sesión) es la misma para todos los casos de uso.
     single { TrabajadorApi( get()) }
     single<TrabajadorRepository> { TrabajadorRepositoryImpl(get(), get()) }
     factory { LoginTrabajador( get()) }
     factory { RegistrarTrabajador(get()) }
+    factory { ObtenerTrabajadorActual(get()) }
+    factory { CerrarSesion(get()) }
+
+    single { AreaApi(get()) }
+    single<AreaRepository> { AreaRepositoryImpl(get()) }
+    factory { ObtenerAreas(get()) }
 
     single { CarnetDigitalApi(get()) }
     single<CarnetRepository> { CarnetRepositoryImpl(get()) }

@@ -14,4 +14,11 @@ interface TrabajadorRepository {
 
     // Registra un trabajador nuevo (endpoint público). Queda PENDIENTE hasta que un administrador lo autorice.
     suspend fun registrar(nuevo: NuevoTrabajador): ApiResult<Trabajador>
+
+    // El trabajador que inició sesión (para mostrar su nombre, cargo, etc. en el carnet).
+    // Es null si no hay sesión iniciada.
+    fun obtenerTrabajadorActual(): Trabajador?
+
+    // Cierra la sesión: borra el token y los datos del trabajador guardados en memoria.
+    fun cerrarSesion()
 }

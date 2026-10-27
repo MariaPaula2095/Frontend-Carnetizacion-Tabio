@@ -4,7 +4,7 @@ Implementaciones de los contratos definidos en `domain/repository`.
 Aqui se usan los clientes de `data/remote/api` y se convierten los DTO en objetos de `domain/model`.
 
 ## Archivos esperados
-`TrabajadorRepositoryImpl`, `CarnetDigitalRepositoryImpl`, `MarcacionRepositoryImpl`, `ConsentimientoRepositoryImpl`.
+`TrabajadorRepositoryImpl`, `AreaRepositoryImpl`, `CarnetRepositoryImpl`, `MarcacionRepositoryImpl`, `ConsentimientoRepositoryImpl`.
 
 ## Por que se llaman asi
 El sufijo `Impl` (implementacion) es el mismo que usa el backend en sus servicios (`TrabajadorServiceImpl`): identifica la clase que cumple el contrato de una interfaz.
@@ -12,3 +12,4 @@ El sufijo `Impl` (implementacion) es el mismo que usa el backend en sus servicio
 ## Ojo
 - En el backend un `repository` habla con la base de datos. Aqui habla con la API del backend. El nombre es igual, pero la fuente de datos es distinta.
 - `TrabajadorRepositoryImpl.login` ademas guarda el token en `TokenStorage`: es un detalle de datos, por eso no lo hace la pantalla.
+- `TrabajadorRepositoryImpl` tambien recuerda en memoria al trabajador que inicio sesion (`obtenerTrabajadorActual`) y lo borra junto con el token en `cerrarSesion`. Por eso se registra como `single` en `DataModule`: si fuera `factory`, cada caso de uso tendria su propia copia y no compartirian la sesion.
