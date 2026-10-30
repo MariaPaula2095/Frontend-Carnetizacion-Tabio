@@ -4,7 +4,7 @@ Todo lo que el usuario ve y toca: las pantallas (Compose Multiplatform) y la log
 
 ## Estructura
 Una carpeta por pantalla, tomada de los mockups. Dentro de cada una:
-- `XxxScreen`: lo que se dibuja.
+- - `XxxScreen.kt`: contiene `XxxScreen`, que conecta la pantalla con su ViewModel, y `XxxContent`, que dibuja y recibe todo por parametro.
 - `XxxViewModel`: el estado de la pantalla y lo que pasa cuando el usuario toca algo.
 
 ## Regla
