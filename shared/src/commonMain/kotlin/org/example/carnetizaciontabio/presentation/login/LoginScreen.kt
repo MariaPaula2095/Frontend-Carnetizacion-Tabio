@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,21 +36,43 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import org.example.carnetizaciontabio.core.ApiResult
+import org.example.carnetizaciontabio.domain.usecase.LoginTrabajador
 import org.example.carnetizaciontabio.presentation.theme.CarnetizacionTheme
 import org.example.carnetizaciontabio.presentation.theme.FondoLogin
 import org.example.carnetizaciontabio.presentation.theme.ImageUrls
+import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen(onIngresar: () -> Unit = {}) {
     var cedula by remember { mutableStateOf("") }
     var pin by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val loginTrabajador: LoginTrabajador = koinInject()
 
     LoginContent(
         cedula = cedula,
         pin = pin,
         onCedulaChange = { cedula = it },
         onPinChange = { pin = it },
-        onIngresar = onIngresar
+        errorMessage = errorMessage,
+        isLoading = isLoading,
+        onIngresar = {
+            errorMessage = null
+            isLoading = true
+            scope.launch {
+                when (val resultado = loginTrabajador(cedula, pin)) {
+                    // La sesion ya quedo guardada en memoria: ahora se navega a Home
+                    is ApiResult.Success -> onIngresar()
+                    // El mensaje ya viene listo para mostrarlo al usuario
+                    is ApiResult.Error -> errorMessage = resultado.message
+                }
+                isLoading = false
+            }
+        }
     )
 }
 
