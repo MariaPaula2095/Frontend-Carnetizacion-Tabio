@@ -1,6 +1,5 @@
 package org.example.carnetizaciontabio.presentation.carnet
 
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -25,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,13 +41,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.example.carnetizaciontabio.presentation.components.BarraSuperior
 import org.example.carnetizaciontabio.presentation.theme.*
+import org.koin.compose.viewmodel.koinViewModel
 
-//Ajustes de tamano
+// Ajustes de tamano
 private const val AnchoCarnet = 0.78f        // fraccion del ancho de la pantalla que ocupa el carnet
 private const val ProporcionCarnet = 0.63f   // ancho / alto: menor a 1 = vertical
 private const val ProporcionFranja = 0.44f   // que parte del alto ocupa la franja azul del frente
@@ -61,28 +64,107 @@ private val TamanoFranjaColor = 35.dp
 private val AlturaLogoPie = 28.dp
 private val AlturaLogoReverso = 42.dp
 
-
-private const val TextoReverso = "Este documento acredita al portador como servidor público de la Alcaldía Municipal de Tabio. \n"+
-        "El presente carnet es personal e intransferible, solo servirá como medio de identificación y no compromete a la Alcaldía Municipal de Tabio en ninguna transacción económica. \n \n"+
-        "Este documento se debe portar en un lugar visible. \n \n"+
-        "En caso de pérdida, favor remitirlo a la Alcaldía Municipal\n"+
+private const val TextoReverso = "Este documento acredita al portador como servidor público de la Alcaldía Municipal de Tabio. \n" +
+        "El presente carnet es personal e intransferible, solo servirá como medio de identificación y no compromete a la Alcaldía Municipal de Tabio en ninguna transacción económica. \n \n" +
+        "Este documento se debe portar en un lugar visible. \n \n" +
+        "En caso de pérdida, favor remitirlo a la Alcaldía Municipal\n" +
         "Tel: (601) 5145878"
 
-// Lo que dibuja el carnet. El ViewModel lo armara juntando al trabajador (login) y su carnet (backend).
+// Lo que dibuja el carnet. El ViewModel lo arma juntando al trabajador (login) y su area (backend).
 data class DatosCarnet(
     val nombreCompleto: String,
     val cargo: String,
     val cedula: String,
     val fotoUrl: String?,
-    val area: String? // falta confirmar con la empresa si "area" y "oficina" son lo mismo.
+    val area: String?
 )
 
+// Estado de la pantalla del carnet.
+sealed interface CarnetUiState {
+    data object Cargando : CarnetUiState
+    data object SinSesion : CarnetUiState
+    data class Error(val mensaje: String) : CarnetUiState
+    data class Contenido(val datos: DatosCarnet) : CarnetUiState
+}
 
+// Conecta la pantalla con el ViewModel y delega el dibujo a CarnetContent.
 @Composable
 fun CarnetScreen(
-    datos: DatosCarnet,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    viewModel: CarnetViewModel = koinViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    CarnetContent(
+        uiState = uiState,
+        onBack = onBack,
+        onReintentar = viewModel::cargarCarnet
+    )
+}
+
+// Recibe todo por parametro para poder previsualizar y testear sin Koin.
+@Composable
+fun CarnetContent(
+    uiState: CarnetUiState,
+    onBack: () -> Unit = {},
+    onReintentar: () -> Unit = {}
+) {
+    when (uiState) {
+        is CarnetUiState.Cargando -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        is CarnetUiState.SinSesion -> {
+            MensajeCarnet(texto = "No hay una sesión activa.", onBack = onBack)
+        }
+        is CarnetUiState.Error -> {
+            MensajeCarnet(texto = uiState.mensaje, onBack = onBack, onReintentar = onReintentar)
+        }
+        is CarnetUiState.Contenido -> {
+            CarnetContenido(datos = uiState.datos, onBack = onBack)
+        }
+    }
+}
+
+// Pantalla simple para los estados que no tienen carnet que mostrar.
+@Composable
+private fun MensajeCarnet(
+    texto: String,
+    onBack: () -> Unit,
+    onReintentar: (() -> Unit)? = null
+) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        BarraSuperior(onBack = onBack)
+        Column(
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = texto,
+                style = MaterialTheme.typography.bodyLarge,
+                color = AzulNoche,
+                textAlign = TextAlign.Center
+            )
+            if (onReintentar != null) {
+                Text(
+                    text = "Reintentar",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = DoradoCarnet,
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .clickable { onReintentar() }
+                )
+            }
+        }
+    }
+}
+
+// El carnet como tal, con los datos ya resueltos por el ViewModel.
+@Composable
+private fun CarnetContenido(datos: DatosCarnet, onBack: () -> Unit = {}) {
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         BarraSuperior(onBack = onBack)
 
@@ -159,7 +241,7 @@ private fun CarnetFrente(datos: DatosCarnet) {
             bottomStart = RadioFranja, bottomEnd = RadioFranja
         )
 
-        // Foto de fondo
+        // Foto de fondo de la franja azul
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -174,7 +256,7 @@ private fun CarnetFrente(datos: DatosCarnet) {
             )
         }
 
-        // ---- Bloque azul: toda la franja superior ----
+        // Bloque azul: toda la franja superior
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -183,11 +265,11 @@ private fun CarnetFrente(datos: DatosCarnet) {
                 .background(AzulCarnet.copy(alpha = 0.49f))
         )
 
-        // ---- Bloque verde: solo el ancho del circulo de la foto, encima del azul ----
+        // Bloque verde con el escudo: encima de las banderas
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .width(TamanoFoto)                     // aqui se gradua el ancho
+                .width(TamanoFoto)
                 .height(alturaFranja - TamanoFoto / 2)
                 .clip(radioInferior)
                 .background(VerdeFranja.copy(alpha = 0.75f)),
@@ -212,8 +294,7 @@ private fun CarnetFrente(datos: DatosCarnet) {
             }
         }
 
-        // ---- Banderas ----
-
+        // Banderas: ocupan todo el ancho de la franja
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -274,7 +355,6 @@ private fun CarnetFrente(datos: DatosCarnet) {
                     textAlign = TextAlign.Center
                 )
             }
-
             Text(
                 text = "CC: ${datos.cedula}",
                 style = MaterialTheme.typography.bodySmall,
@@ -283,7 +363,7 @@ private fun CarnetFrente(datos: DatosCarnet) {
             )
         }
 
-        // ---- Franja dorada del pie ----
+        // Franja dorada del pie
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -292,7 +372,7 @@ private fun CarnetFrente(datos: DatosCarnet) {
                 .background(DoradoCarnet)
         )
 
-        // ---- Cuadraditos: su centro cae justo sobre el borde superior del dorado ----
+        // Cuadraditos: su centro cae justo sobre el borde superior del dorado
         Row(
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -305,7 +385,7 @@ private fun CarnetFrente(datos: DatosCarnet) {
             Box(Modifier.width(TamanoFranjaColor).height(AlturaCuadritos).background(VerdeFranja))
         }
 
-        // ---- Logo TABIO en negro: reemplaza escudo + texto, montado sobre el dorado ----
+        // Logo TABIO en negro, montado sobre el dorado
         AsyncImage(
             model = ImageUrls.ALCALDIATABIO_NEGRO,
             contentDescription = "Alcaldía Municipal de Tabio",
@@ -372,20 +452,19 @@ private fun CarnetReverso(texto: String) {
     }
 }
 
-
-
-
 @Preview
 @Composable
 private fun CarnetPreview() {
     CarnetizacionTheme {
-        CarnetScreen(
-            datos = DatosCarnet(
-                nombreCompleto = "Juan Sebastián Silva Cárdenas",
-                cargo = "Contratista",
-                cedula = "1076622641",
-                fotoUrl = null,
-                area = "Oficina ejemplo"
+        CarnetContent(
+            uiState = CarnetUiState.Contenido(
+                DatosCarnet(
+                    nombreCompleto = "Juan Sebastián Silva Cárdenas",
+                    cargo = "Contratista",
+                    cedula = "1076622641",
+                    fotoUrl = null,
+                    area = "Oficina ejemplo"
+                )
             )
         )
     }

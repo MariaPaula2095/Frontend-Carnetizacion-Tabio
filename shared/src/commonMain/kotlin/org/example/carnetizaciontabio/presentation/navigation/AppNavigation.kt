@@ -8,13 +8,10 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import org.example.carnetizaciontabio.domain.model.TipoMarcacion
 import org.example.carnetizaciontabio.domain.usecase.CerrarSesion
 import org.example.carnetizaciontabio.presentation.carnet.CarnetScreen
-import org.example.carnetizaciontabio.presentation.carnet.DatosCarnet
 import org.example.carnetizaciontabio.presentation.consentimiento.ConsentimientoScreen
 import org.example.carnetizaciontabio.presentation.historial.HistorialScreen
-import org.example.carnetizaciontabio.presentation.historial.ItemHistorial
 import org.example.carnetizaciontabio.presentation.home.HomeScreen
 import org.example.carnetizaciontabio.presentation.login.LoginScreen
 import org.example.carnetizaciontabio.presentation.marcacion.MarcarScreen
@@ -26,14 +23,6 @@ private val config = SavedStateConfiguration {
     }
 }
 
-// EJEMPLO: datos de prueba para la navegacion. Se borran cuando cada pantalla tenga su ViewModel.
-private val CarnetEjemplo = DatosCarnet(
-    nombreCompleto = "Juan Sebastián Silva Cárdenas",
-    cargo = "Contratista",
-    cedula = "1076622641",
-    fotoUrl = null,
-    area = "Oficina de ejemplo"
-)
 /*
 private val HistorialEjemplo = listOf(
     ItemHistorial(TipoMarcacion.ENTRADA, "Hoy, 7:45 AM"),
@@ -69,7 +58,7 @@ fun AppNavigation() {
                 )
             }
             entry<Ruta.Carnet> {
-                CarnetScreen(datos = CarnetEjemplo, onBack = { backStack.removeLastOrNull() })
+                CarnetScreen(onBack = { backStack.removeLastOrNull() })
             }
             entry<Ruta.Marcar> {
                 MarcarScreen(
