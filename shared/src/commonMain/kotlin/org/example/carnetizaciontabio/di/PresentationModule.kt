@@ -1,6 +1,7 @@
 package org.example.carnetizaciontabio.di
 
 import org.example.carnetizaciontabio.presentation.historial.HistorialViewModel
+import org.example.carnetizaciontabio.presentation.login.LoginViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.koin.core.module.dsl.viewModel
@@ -10,5 +11,6 @@ import org.koin.core.module.dsl.viewModel
 // Van aparte de dataModule porque dependen de Compose y de lifecycle-viewmodel,
 // y la capa de datos no debe conocer nada de eso.
 val presentationModule = module {
+    viewModel { LoginViewModel(get()) }
     viewModel { HistorialViewModel(get()) }
 }
