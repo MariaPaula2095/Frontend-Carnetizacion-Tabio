@@ -18,9 +18,6 @@ import org.example.carnetizaciontabio.presentation.home.HomeScreen
 import org.example.carnetizaciontabio.presentation.login.LoginScreen
 import org.example.carnetizaciontabio.presentation.marcacion.MarcarScreen
 
-// Los demas imports (pantallas, DatosCarnet, ItemHistorial, TipoMarcacion, subclassesOfSealed): Alt+Enter
-
-// Necesario para que la pila se pueda guardar en iOS; en Android no estorba. Es la receta de la documentacion.
 private val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) { subclassesOfSealed<Ruta>() }
@@ -52,7 +49,6 @@ fun AppNavigation() {
         entryProvider = entryProvider {
             entry<Ruta.Login> {
                 LoginScreen(onIngresar = {
-                    // pendiente: entra sin validar; el ViewModel llamara esto solo si el login sale bien
                     backStack.clear(); backStack.add(Ruta.Home)   // asi "atras" no vuelve al Login
                 })
             }
