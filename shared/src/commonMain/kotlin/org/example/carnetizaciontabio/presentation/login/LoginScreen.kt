@@ -22,10 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,18 +35,32 @@ import coil3.compose.AsyncImage
 import org.example.carnetizaciontabio.presentation.theme.CarnetizacionTheme
 import org.example.carnetizaciontabio.presentation.theme.FondoLogin
 import org.example.carnetizaciontabio.presentation.theme.ImageUrls
+import org.koin.compose.viewmodel.koinViewModel
 
+/*
+  Pantalla conectada al ViewModel: obtiene el estado y lo delega en [LoginContent].
+  La navegacion a Home ocurre cuando el ViewModel confirma que la sesion se abrio.
+ */
 @Composable
 fun LoginScreen(onIngresar: () -> Unit = {}) {
-    var cedula by remember { mutableStateOf("") }
-    var pin by remember { mutableStateOf("") }
+    val viewModel: LoginViewModel = koinViewModel()
+
+    LaunchedEffect(viewModel.sesionIniciada) {
+        if (viewModel.sesionIniciada) {
+            viewModel.onSesionConsumida()
+            onIngresar()
+        }
+    }
+
 
     LoginContent(
-        cedula = cedula,
-        pin = pin,
-        onCedulaChange = { cedula = it },
-        onPinChange = { pin = it },
-        onIngresar = onIngresar
+        cedula = viewModel.cedula,
+        pin = viewModel.pin,
+        onCedulaChange = viewModel::onCedulaChange,
+        onPinChange = viewModel::onPinChange,
+        errorMessage = viewModel.errorMessage,
+        isLoading = viewModel.isLoading,
+        onIngresar = viewModel::ingresar
     )
 }
 
