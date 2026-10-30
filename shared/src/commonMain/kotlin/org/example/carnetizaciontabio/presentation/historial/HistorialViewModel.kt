@@ -1,13 +1,23 @@
 package org.example.carnetizaciontabio.presentation.historial
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.example.carnetizaciontabio.core.ApiResult
 import org.example.carnetizaciontabio.domain.usecase.ObtenerHistorial
+
+/*
+  Estado de la pantalla de historial.
+ */
+sealed interface HistorialUiState {
+    data object Cargando : HistorialUiState
+    data object SinSesion : HistorialUiState
+    data class Error(val mensaje: String) : HistorialUiState
+    data class Contenido(val marcaciones: List<ItemHistorial>) : HistorialUiState
+}
 
 /*
   Estado y lógica de la pantalla de historial.
@@ -17,12 +27,8 @@ class HistorialViewModel(
     private val obtenerHistorial: ObtenerHistorial
 ) : ViewModel() {
 
-    var items by mutableStateOf<List<ItemHistorial>>(emptyList())
-        private set
-    var isLoading by mutableStateOf(true)
-        private set
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
+    private val _uiState = MutableStateFlow<HistorialUiState>(HistorialUiState.Cargando)
+    val uiState: StateFlow<HistorialUiState> = _uiState.asStateFlow()
 
     init {
         cargar()
@@ -33,19 +39,26 @@ class HistorialViewModel(
      */
     fun cargar() {
         viewModelScope.launch {
-            isLoading = true
-            errorMessage = null
+            _uiState.value = HistorialUiState.Cargando
             when (val resultado = obtenerHistorial()) {
-                is ApiResult.Success -> items = resultado.data.map { marcacion ->
-                    ItemHistorial(
-                        tipo = marcacion.tipo,
-                        fecha = formatearFechaHora(marcacion.fechaHora)
+                is ApiResult.Success -> {
+                    _uiState.value = HistorialUiState.Contenido(
+                        resultado.data.map { marcacion ->
+                            ItemHistorial(
+                                tipo = marcacion.tipo,
+                                fecha = formatearFechaHora(marcacion.fechaHora)
+                            )
+                        }
                     )
                 }
 
-                is ApiResult.Error -> errorMessage = resultado.message
+                is ApiResult.Error -> {
+                    _uiState.value = when (resultado.code) {
+                        401, 403 -> HistorialUiState.SinSesion
+                        else -> HistorialUiState.Error(resultado.message)
+                    }
+                }
             }
-            isLoading = false
         }
     }
 }

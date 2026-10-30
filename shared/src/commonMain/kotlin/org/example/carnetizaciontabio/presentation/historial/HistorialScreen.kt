@@ -2,6 +2,7 @@ package org.example.carnetizaciontabio.presentation.historial
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.example.carnetizaciontabio.domain.model.TipoMarcacion
 import org.example.carnetizaciontabio.presentation.components.BarraSuperior
 import org.example.carnetizaciontabio.presentation.theme.AmarilloCarnet
@@ -73,13 +76,16 @@ data class ItemHistorial(
   Pantalla conectada al ViewModel: obtiene el estado y lo delega en [HistorialContent].
  */
 @Composable
-fun HistorialScreen(onBack: () -> Unit = {}) {
-    val viewModel: HistorialViewModel = koinViewModel()
+fun HistorialScreen(
+    onBack: () -> Unit = {},
+    viewModel: HistorialViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     HistorialContent(
-        items = viewModel.items,
-        isLoading = viewModel.isLoading,
-        errorMessage = viewModel.errorMessage,
-        onBack = onBack
+        uiState = uiState,
+        onBack = onBack,
+        onReintentar = viewModel::cargar
     )
 }
 
@@ -89,10 +95,9 @@ fun HistorialScreen(onBack: () -> Unit = {}) {
  */
 @Composable
 fun HistorialContent(
-    items: List<ItemHistorial>,
+    uiState: HistorialUiState,
     onBack: () -> Unit = {},
-    isLoading: Boolean = false,
-    errorMessage: String? = null
+    onReintentar: () -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         BarraSuperior(onBack = onBack)
@@ -110,31 +115,74 @@ fun HistorialContent(
             )
         )
 
-        when {
-            isLoading -> Box(
+        when (uiState) {
+            is HistorialUiState.Cargando -> Box(
                 modifier = Modifier.fillMaxWidth().padding(MargenPantalla),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
-            errorMessage != null -> Mensaje(errorMessage, MaterialTheme.colorScheme.error)
 
-            items.isEmpty() -> Mensaje(
-                "Aún no tienes marcaciones.",
-                MaterialTheme.colorScheme.onSurfaceVariant
+            is HistorialUiState.SinSesion -> MensajeConReintento(
+                texto = "No hay una sesión activa.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                onReintentar = null
             )
 
-            else -> LazyColumn(
-                modifier = Modifier.weight(1f).fillMaxWidth().navigationBarsPadding(),
-                contentPadding = PaddingValues(
-                    start = MargenPantalla,
-                    end = MargenPantalla,
-                    bottom = MargenPantalla
-                ),
-                verticalArrangement = Arrangement.spacedBy(SeparacionFilas)
-            ) {
-                items(items) { FilaHistorial(it) }
+            is HistorialUiState.Error -> MensajeConReintento(
+                texto = uiState.mensaje,
+                color = MaterialTheme.colorScheme.error,
+                onReintentar = onReintentar
+            )
+
+            is HistorialUiState.Contenido -> {
+                if (uiState.marcaciones.isEmpty()) {
+                    Mensaje(
+                        "Aún no tienes marcaciones.",
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f).fillMaxWidth().navigationBarsPadding(),
+                        contentPadding = PaddingValues(
+                            start = MargenPantalla,
+                            end = MargenPantalla,
+                            bottom = MargenPantalla
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(SeparacionFilas)
+                    ) {
+                        items(uiState.marcaciones) { FilaHistorial(it) }
+                    }
+                }
             }
+        }
+    }
+}
+
+/*
+  Mensaje centrado con un enlace opcional para volver a consultar.
+ */
+@Composable
+private fun MensajeConReintento(
+    texto: String,
+    color: Color,
+    onReintentar: (() -> Unit)?
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(MargenPantalla),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Mensaje(texto, color)
+        if (onReintentar != null) {
+            Text(
+                text = "Reintentar",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = AzulNoche,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .clickable { onReintentar() }
+            )
         }
     }
 }
@@ -197,13 +245,15 @@ private fun TipoMarcacion?.color(): Color = when (this) {
 private fun HistorialPreview() {
     CarnetizacionTheme {
         HistorialContent(
-            items = listOf(
-                ItemHistorial(TipoMarcacion.ENTRADA, "Hoy, 7:45 AM"),
-                ItemHistorial(TipoMarcacion.SALIDA_ALMUERZO, "Hoy, 12:00 PM"),
-                ItemHistorial(TipoMarcacion.ENTRADA_ALMUERZO, "Hoy, 12:57 PM"),
-                ItemHistorial(TipoMarcacion.SALIDA, "Ayer, 6:00 PM"),
-                ItemHistorial(TipoMarcacion.ENTRADA, "Ayer, 7:45 AM"),
-                ItemHistorial(TipoMarcacion.SALIDA, "15 oct, 6:00 PM")
+            uiState = HistorialUiState.Contenido(
+                listOf(
+                    ItemHistorial(TipoMarcacion.ENTRADA, "Hoy, 7:45 AM"),
+                    ItemHistorial(TipoMarcacion.SALIDA_ALMUERZO, "Hoy, 12:00 PM"),
+                    ItemHistorial(TipoMarcacion.ENTRADA_ALMUERZO, "Hoy, 12:57 PM"),
+                    ItemHistorial(TipoMarcacion.SALIDA, "Ayer, 6:00 PM"),
+                    ItemHistorial(TipoMarcacion.ENTRADA, "Ayer, 7:45 AM"),
+                    ItemHistorial(TipoMarcacion.SALIDA, "15 oct, 6:00 PM")
+                )
             )
         )
     }
