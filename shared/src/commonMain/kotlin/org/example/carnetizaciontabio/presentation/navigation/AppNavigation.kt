@@ -27,13 +27,12 @@ private val config = SavedStateConfiguration {
 }
 
 // EJEMPLO: datos de prueba para la navegacion. Se borran cuando cada pantalla tenga su ViewModel.
-// Ajusta los campos de DatosCarnet a como quedo tu version final.
 private val CarnetEjemplo = DatosCarnet(
     nombreCompleto = "Juan Sebastián Silva Cárdenas",
     cargo = "Contratista",
     cedula = "1076622641",
     fotoUrl = null,
-    oficina = "Oficina de ejemplo"
+    area = "Oficina de ejemplo"
 )
 /*
 private val HistorialEjemplo = listOf(

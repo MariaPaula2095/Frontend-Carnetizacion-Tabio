@@ -74,7 +74,7 @@ data class DatosCarnet(
     val cargo: String,
     val cedula: String,
     val fotoUrl: String?,
-    val oficina: String? //valor pendiente
+    val area: String? // falta confirmar con la empresa si "area" y "oficina" son lo mismo.
 )
 
 
@@ -160,19 +160,19 @@ private fun CarnetFrente(datos: DatosCarnet) {
         )
 
         // Foto de fondo
-        /*Box(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(alturaFranja)
                 .clip(radioInferior)
         ) {
             AsyncImage(
-                model = ImageUrls.?FONDO_CARNET,   // TODO: agregar esta URL a ImageUrls
+                model = ImageUrls.FONDO_CARNET,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-        }*/
+        }
 
         // ---- Bloque azul: toda la franja superior ----
         Box(
@@ -212,6 +212,24 @@ private fun CarnetFrente(datos: DatosCarnet) {
             }
         }
 
+        // ---- Banderas ----
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(alturaFranja)
+                .clip(radioInferior)
+        ) {
+            AsyncImage(
+                model = ImageUrls.BANDERAS_CARNET,
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+            )
+        }
+
         // Foto del trabajador: el centro queda en el borde inferior de la franja
         Box(
             modifier = Modifier
@@ -248,14 +266,15 @@ private fun CarnetFrente(datos: DatosCarnet) {
                 textAlign = TextAlign.Center
             )
             Text(datos.cargo, style = MaterialTheme.typography.bodyMedium, color = AzulNoche)
-            if (datos.oficina != null) {
+            if (datos.area != null) {
                 Text(
-                    text = datos.oficina,
+                    text = datos.area,
                     style = MaterialTheme.typography.bodySmall,
                     color = AzulNoche,
                     textAlign = TextAlign.Center
                 )
             }
+
             Text(
                 text = "CC: ${datos.cedula}",
                 style = MaterialTheme.typography.bodySmall,
@@ -366,7 +385,7 @@ private fun CarnetPreview() {
                 cargo = "Contratista",
                 cedula = "1076622641",
                 fotoUrl = null,
-                oficina = "Oficina ejemplo"
+                area = "Oficina ejemplo"
             )
         )
     }
