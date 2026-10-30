@@ -1,6 +1,7 @@
 package org.example.carnetizaciontabio.di
 
 import org.example.carnetizaciontabio.presentation.carnet.CarnetViewModel
+import org.example.carnetizaciontabio.presentation.consentimiento.ConsentimientoViewModel
 import org.example.carnetizaciontabio.presentation.historial.HistorialViewModel
 import org.example.carnetizaciontabio.presentation.login.LoginViewModel
 import org.koin.core.module.dsl.viewModel
@@ -15,4 +16,5 @@ val presentationModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { CarnetViewModel(get(), get()) }
     viewModel { HistorialViewModel(get()) }
+    viewModel { ConsentimientoViewModel(get(), get()) }
 }

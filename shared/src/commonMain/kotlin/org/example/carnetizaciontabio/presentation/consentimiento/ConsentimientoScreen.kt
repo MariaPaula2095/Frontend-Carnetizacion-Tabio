@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.example.carnetizaciontabio.presentation.components.BarraSuperior
 import org.example.carnetizaciontabio.presentation.components.BotonAccion
 import org.example.carnetizaciontabio.presentation.theme.AzulNoche
@@ -43,6 +45,8 @@ import org.example.carnetizaciontabio.presentation.theme.BordeGris
 import org.example.carnetizaciontabio.presentation.theme.CarnetizacionTheme
 import org.example.carnetizaciontabio.presentation.theme.VerdeAccion
 import org.example.carnetizaciontabio.presentation.theme.TextoPrincipal
+import org.koin.compose.viewmodel.koinViewModel
+
 // ---- Ajustes de espaciado ----
 private val MargenPantalla = 24.dp
 private val SeparacionVertical = 16.dp
@@ -79,18 +83,120 @@ private const val CierreConsentimiento =
     "Al marcar la casilla y pulsar «Aceptar y continuar», declaras que leíste esta información y autorizas de manera libre, previa e informada el tratamiento descrito."
 
 /*
-  Pantalla de consentimiento. La casilla es estado propio de la pantalla (acepto);
-  lo demas llega por parametros para que el ViewModel lo controle despues.
+  Conecta la pantalla con el ViewModel y delega el dibujo a ConsentimientoContent.
  */
 @Composable
 fun ConsentimientoScreen(
-    versionPolitica: String = "1.0",
     onAceptar: () -> Unit = {},
     onBack: () -> Unit = {},
-    isLoading: Boolean = false,
-    errorMessage: String? = null
+    viewModel: ConsentimientoViewModel = koinViewModel()
 ) {
-    var acepto by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ConsentimientoContent(
+        uiState = uiState,
+        onAceptarClick = viewModel::aceptar,
+        onAceptado = onAceptar,
+        onBack = onBack,
+        onReintentar = viewModel::cargar
+    )
+}
+
+/*
+  Recibe todo por parametro para poder previsualizar y testear sin Koin.
+  La casilla es estado propio de la pantalla (acepto); lo demas llega en el uiState.
+ */
+@Composable
+fun ConsentimientoContent(
+    uiState: ConsentimientoUiState,
+    onAceptarClick: () -> Unit = {},
+    onAceptado: () -> Unit = {},
+    onBack: () -> Unit = {},
+    onReintentar: () -> Unit = {}
+) {
+    when (uiState) {
+        is ConsentimientoUiState.Cargando -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is ConsentimientoUiState.SinSesion -> {
+            MensajeConsentimiento(
+                texto = "No hay una sesión activa.",
+                onBack = onBack
+            )
+        }
+
+        is ConsentimientoUiState.Error -> {
+            MensajeConsentimiento(
+                texto = uiState.mensaje,
+                onBack = onBack,
+                onReintentar = onReintentar
+            )
+        }
+
+        is ConsentimientoUiState.Contenido -> {
+            ConsentimientoContenido(
+                estado = uiState,
+                onAceptarClick = onAceptarClick,
+                onContinuar = onAceptado,
+                onBack = onBack
+            )
+        }
+    }
+}
+
+/*
+  Mensaje centrado para los estados SinSesion y Error, con reintento opcional.
+ */
+@Composable
+private fun MensajeConsentimiento(
+    texto: String,
+    onBack: () -> Unit,
+    onReintentar: (() -> Unit)? = null
+) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        BarraSuperior(onBack = onBack)
+
+        Column(
+            modifier = Modifier.fillMaxSize().padding(MargenPantalla),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = texto,
+                style = MaterialTheme.typography.bodyLarge,
+                color = ColorTextoCuerpo,
+                textAlign = TextAlign.Center
+            )
+            if (onReintentar != null) {
+                Text(
+                    text = "Reintentar",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = ColorTituloSeccion,
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .clickable { onReintentar() }
+                )
+            }
+        }
+    }
+}
+
+/*
+  Layout de la politica. Toma los datos resueltos del estado Contenido.
+ */
+@Composable
+private fun ConsentimientoContenido(
+    estado: ConsentimientoUiState.Contenido,
+    onAceptarClick: () -> Unit,
+    onContinuar: () -> Unit,
+    onBack: () -> Unit
+) {
+    // Si ya acepto antes, la casilla arranca marcada y no se puede desmarcar.
+    var acepto by remember(estado.yaAceptado) { mutableStateOf(estado.yaAceptado) }
     val scroll = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -156,7 +262,7 @@ fun ConsentimientoScreen(
             }
 
             Text(
-                text = "Versión de política: $versionPolitica",
+                text = "Versión de política: ${estado.versionPolitica}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -165,28 +271,51 @@ fun ConsentimientoScreen(
 
             // Toda la fila es tocable, no solo el cuadrito: es mas facil de acertar con el dedo
             Row(
-                modifier = Modifier.fillMaxWidth().clickable { acepto = !acepto },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = !estado.yaAceptado) { acepto = !acepto },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Checkbox(checked = acepto, onCheckedChange = null)
+                Checkbox(
+                    checked = acepto,
+                    onCheckedChange = null,
+                    enabled = !estado.yaAceptado
+                )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "He leído y acepto los términos",
+                    text = if (estado.yaAceptado) {
+                        "Ya aceptaste esta versión de la política"
+                    } else {
+                        "He leído y acepto los términos"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            if (errorMessage != null) {
-                Text(text = errorMessage, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+
+            if (estado.errorAlEnviar != null) {
+                Text(
+                    text = estado.errorAlEnviar,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
-            BotonAccion(
-                texto = if (isLoading) "Enviando..." else "Aceptar y continuar",
-                color = VerdeAccion,
-                onClick = onAceptar,
-                enabled = acepto && !isLoading   // apagado hasta marcar la casilla
-            )
+            if (estado.yaAceptado) {
+                BotonAccion(
+                    texto = "Continuar",
+                    color = VerdeAccion,
+                    onClick = onContinuar
+                )
+            } else {
+                BotonAccion(
+                    texto = if (estado.enviando) "Enviando..." else "Aceptar y continuar",
+                    color = VerdeAccion,
+                    onClick = onAceptarClick,
+                    enabled = acepto && !estado.enviando
+                )
+            }
         }
     }
 }
@@ -194,7 +323,14 @@ fun ConsentimientoScreen(
 @Preview
 @Composable
 private fun ConsentimientoPreview() {
-    CarnetizacionTheme { ConsentimientoScreen() }
+    CarnetizacionTheme {
+        ConsentimientoContent(
+            uiState = ConsentimientoUiState.Contenido(
+                versionPolitica = "1.0",
+                yaAceptado = false
+            )
+        )
+    }
 }
 
 /*
